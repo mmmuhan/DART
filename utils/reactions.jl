@@ -23,7 +23,7 @@ end
 function compute_ont(k, id, rn)
     if rn == "gen"
         return (k[7]*k[9]+k[10]*(k[7]+k[8]))/(k[6]*k[8]*k[10])
-    elseif rn == "ref"   
+    else       
         return 1/k[id]
     end
 end
