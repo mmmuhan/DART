@@ -1,6 +1,6 @@
 # Application of DART on eve data from Berrocal et al., 2020
 
-- `eve_bootstrap.jl` — run to obtain `boot_dl_results.jld2`:
+- `eve_bootstrap.jl` — run to obtain `boot_dl_results.jld2`.
   
 - `boot_dl_results.jld2` — saved bootstrapping results for:
   - mean on rate
