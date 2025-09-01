@@ -1,20 +1,15 @@
 # Application of DART on eve data from Berrocal et al., 2020
 
-- `eve_bootstrap.jl` — run to obtain:
+- `eve_bootstrap.jl` — run to obtain `boot_dl_results.jld2`:
+  
+- `boot_dl_results.jld2` — saved bootstrapping results for:
   - mean on rate
   - mean off rate
   - standard deviation on rate
   - standard deviation off rate
   - fraction of on time
 
-- `boot_dl_results.jld2` — saved results for:
-  - mean on rate
-  - mean off rate
-  - standard deviation on rate
-  - standard deviation off rate
-  - fraction of on time
-
-- `test.jl` — run to obtain binarized promoter states.
+- `test.jl` — run to obtain binarized promoter states `trained_trace10/`.
 
 - `trained_trace10/` - saved results for binarized promoter states. Each file follows dl_trace{i}{j}.jld2 (i: stripe; j: fluorescence-bin group).
 
