@@ -1,6 +1,6 @@
 # Application of DART on eve data from Berrocal et al., 2020
 
-- `eve_bootsrap.jl` — run to obtain:
+- `eve_bootstrap.jl` — run to obtain:
   - mean on rate
   - mean off rate
   - standard deviation on rate
