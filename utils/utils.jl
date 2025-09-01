@@ -249,6 +249,23 @@ function plot_rn(rn_met)
     for ax in (ax5, ax6)
         ax.set_rasterization_zorder(0.5)  # <= 0.5 rasterized
     end
+
+    for ax in [ax1,ax2]
+    if String(ax[:get_yscale]()) == "log"
+        auto_min, auto_max = ax[:get_ylim]()
+        new_min = auto_min
+        new_max = max(auto_max, 10.0^1)   
+        ax[:set_ylim]([new_min, new_max])
+
+        ax[:get_yaxis]()[:set_major_formatter](
+            plt[:FuncFormatter]((v,p)->"\$10^{$(Int(round(log10(v))))}\$")
+        )
+    end
+    
+    if String(ax[:get_xscale]()) == "log"
+        x0, x1 = ax[:get_xlim]()
+        ax[:set_xlim]([x0, max(x1, 10.0^1)])
+    end
     
     return fig
     
