@@ -130,7 +130,7 @@ function scatter_plot(ax, rn_met, x_data, y_data, label_pos; axis_log=true)
     ax.legend(borderpad=0.3, fontsize=10, loc="lower right")
 
     x_min, x_max = minimum(vcat(x_data,y_data)), maximum(vcat(x_data,y_data))
-    ax.plot(x_min*0.9:0.1:x_max*1.1, x_min*0.9:0.1:x_max*1.1, c="#2c7bb6", linestyle="--", linewidth=1.5)
+    ax.plot(x_min*0.9:0.1:x_max*1.5, x_min*0.9:0.1:x_max*1.5, c="#2c7bb6", linestyle="--", linewidth=1.5)
     
     ax.set_xlim(x_min * 0.8, x_max * 1.15)
     ax.set_ylim(x_min * 0.8, x_max * 1.15)
@@ -181,7 +181,7 @@ function plot_rn(rn_met)
     ax3.set_xlabel(L"Accuracy $\alpha$", fontsize=fs1); ax3.set_ylabel("Probability",fontsize=fs1);
     
     axs = [ax5, ax6]; 
-    colors = ["#fc8d59","#4575b4","#fee090"]; labels = ["Q1","Q2","Q3"]; inset_labels = ["on", "off"]
+    colors = ["#fc8d59","#4575b4","#fee090"]; labels = ["Q1","Q2","Q3"]; inset_labels = ["on-time", "off-time"]
 
     for i in 1:2
         re = [abs.((m.binart_mean[i] - m.truet_mean[i]) / m.truet_mean[i]) for m in rn_met]
@@ -201,14 +201,14 @@ function plot_rn(rn_met)
             ecdf1, ecdf2 = ecdf(truet), ecdf(binart)
             cdf1_values, cdf2_values = ecdf1(sorted_true), ecdf2(sorted_binar)
             
-            axs[i].scatter(cdf1_values, cdf2_values,s=10,c=colors[q_idx],alpha=0.3,edgecolors="none",label=labels[q_idx],zorder=0.0)
+            sc = axs[i].scatter(cdf1_values, cdf2_values,s=10,c=colors[q_idx],alpha=0.3,edgecolors="none",label=labels[q_idx],zorder=0.0)
             
             Line2D = PyPlot.matplotlib.lines.Line2D # Set custom legend
             legend_handles = [Line2D([0], [0], marker="o", color="w", markerfacecolor=c, markersize=8) for c in colors]
             
             axs[i].legend(legend_handles, ["Q1", "Q2", "Q3"], scatterpoints=1, borderpad=0.3, fontsize=9)
         
-            axs[i].plot([0,1], [0,1], c="#cb181d", lw = 1.0, zorder=2.0)
+            axs[i].plot([0,1], [0,1], c="#cb181d",lw = 1.0,zorder=2.0)
             
             q1, q2, q3 = quantile(re, [0.25, 0.5, 0.75])  # Compute quantiles
 
@@ -245,11 +245,11 @@ function plot_rn(rn_met)
             spine.set_linewidth(wd)
         end
     end
-
+    
     for ax in (ax5, ax6)
-        ax.set_rasterization_zorder(0.5)  # <= 0.5 rasterized
+        ax.set_rasterization_zorder(0.5)  # 0.5 以上保持矢量（线、字），0.5 及以下（散点）栅格化
     end
-
+    
     for ax in [ax1,ax2]
     if String(ax[:get_yscale]()) == "log"
         auto_min, auto_max = ax[:get_ylim]()
@@ -266,6 +266,7 @@ function plot_rn(rn_met)
         x0, x1 = ax[:get_xlim]()
         ax[:set_xlim]([x0, max(x1, 10.0^1)])
     end
+end
     
     return fig
     
@@ -282,7 +283,7 @@ function plot_time(rn_met) # plot without accuracy
     axs[1,1].set_xlabel("true mean on time"); axs[1,1].set_ylabel("DL mean on time");
     axs[1,2].set_xlabel("true mean off time"); axs[1,2].set_ylabel("DL mean off time");
     
-    colors = ["#fc8d59","#4575b4","#fee090"]; labels = ["Q1","Q2","Q3"]; inset_labels = ["on", "off"]
+    colors = ["#fc8d59","#4575b4","#fee090"]; labels = ["Q1","Q2","Q3"]; inset_labels = ["on-time", "off-time"]
 
     for i in 1:2
         re = [abs.((m.binart_mean[i] - m.truet_mean[i]) / m.truet_mean[i]) for m in rn_met]

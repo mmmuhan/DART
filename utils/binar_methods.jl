@@ -1,4 +1,4 @@
-using SavitzkyGolay,Clustering,DSP
+using SavitzkyGolay,DSP
 include("HMM_func.jl")
 
 function synthetic_traces_hmm(syn,inter,thresh,states::Int64)

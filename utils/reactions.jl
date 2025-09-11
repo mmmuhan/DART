@@ -15,6 +15,8 @@ function compute_offt(k, id, rn)
         return (k[1]+k[2])/(k[1]*k[3])
     elseif rn == "perm1"
         return (k[1]*k[3]+k[1]*k[4]+k[2]*k[4])/(k[1]*k[3]*k[5])
+    elseif rn == "perm2"
+        return (k[1]*k[3]*k[5] + k[2]*k[4]*k[6] + k[1]*(k[3] + k[4])*k[6])/(k[1]*k[3]*k[5]*k[7])
     elseif rn == "gen"
         return (k[2]*k[4]+k[1]*(k[3]+k[4]))/(k[1]*k[3]*k[5])
     end
@@ -149,6 +151,43 @@ function construct_prob_delayperm1(params) # with true time (not evenly distribu
     delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
     
     u0 = [1,0,0,0,0] # initial condition
+    de_chan0 = [[]] # initial delay channel
+    tspan = (t0,tf)
+    
+    dprob = DiscreteProblem(u0, tspan)
+    djprob = DelayJumpProblem(dprob, DelayRejection(), jumpset, delayjumpset, de_chan0, save_positions = (false,false), save_delay_channel = true)
+    return djprob
+end
+
+#a1: G1 -> G2
+#a2: G2 -> G1
+#a3: G2 -> G3
+#a4: G3 -> G2
+#a5: G3 -> G4
+#a6: G4 -> G3
+#a7: G4 -> G5
+#a8: G5 -> G4
+#c1: G5 -> G5 + N, N => τ 0
+#d: N -> 0
+# 1. G1, 2. G2, 3. G3, 4. G4, 5. G5, 6. N
+
+function construct_prob_delayperm2(params) # with true time (not evenly distributed)
+    
+    a1, a2, a3, a4, a5, a6, a7, a8, c1, d, τ, t0, tf = params
+    rates = [a1, a2, a3, a4, a5, a6, a7, a8, c1, d]
+    
+    # Markovian
+    react_stoich = [[1=>1],[2=>1],[2=>1],[3=>1],[3=>1],[4=>1],[4=>1],[5=>1],[5=>1],[6=>1]] # reactant index => reactant coefficient
+    net_stoich = [[1=>-1,2=>1],[2=>-1,1=>1],[2=>-1,3=>1],[3=>-1,2=>1],[3=>-1,4=>1],[4=>-1,3=>1],[4=>-1,5=>1],[5=>-1,4=>1],[6=>1],[6=>-1]] # reactant index => net change, excluding 0 change
+    mass_action_jump = MassActionJump(rates, react_stoich, net_stoich; scale_rates = false) # optimized representation for ConstantRateJumps
+    jumpset = JumpSet((),(),nothing,mass_action_jump)
+    
+    # non-Markovian
+    delay_trigger = Dict(9=>[1=>τ]) # indices of reactions that can trigger delay reactions=>[delay channels=>delay time]
+    delay_complete = Dict(1=>[6=>-1]) # indices of delay channels =>[species index=>net change]
+    delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
+    
+    u0 = [1,0,0,0,0,0] # initial condition
     de_chan0 = [[]] # initial delay channel
     tspan = (t0,tf)
     
