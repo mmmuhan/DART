@@ -4,7 +4,7 @@
 
 This repository contains the code for the paper: DART: Deep learning for the Analysis and Reconstruction of Transcriptional dynamics from live-cell imaging data, Muhan Ma, Ramon Grima (2025)
 
-Preprint: https://doi.org/10.1101/2025.09.02.673499s
+Preprint: https://doi.org/10.1101/2025.09.02.673499
 
 ## Requirements
 
