@@ -1,10 +1,8 @@
 # DART
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
-
 This repository contains the code for the paper: DART: Deep learning for the Analysis and Reconstruction of Transcriptional dynamics from live-cell imaging data, Muhan Ma, Ramon Grima (2025)
 
-Preprint: https://doi.org/10.1101/2025.09.02.673499
+Preprint: https://doi.org/10.1101/2025.09.02.673499s
 
 ## Requirements
 
@@ -32,7 +30,7 @@ Pkg.instantiate()
 
 Most synthetic datasets used in this work are too large to host on GitHub.  
 They are archived separately on Zenodo:  
-[Synthetic data](https://doi.org/10.5281/zenodo.DATASET_DOI)
+[Synthetic data](https://doi.org/10.5281/zenodo.17100879)
 
 The GitHub repository contains **all analysis code** (see `synthetic_analysis/`) to generate and test on these datasets.  
 
@@ -43,7 +41,7 @@ The GitHub repository contains **all analysis code** (see `synthetic_analysis/`)
 - `synthetic_analysis` - scripts to generate synthetic data, train DART, and evaluate the performance (**data `synthetic_data` hosted on Zenodo**)  
 - `svm` - scipts for model selection using SVM classifier
 - `eve_analysis` - application of DART on eve data from Berrocal et al., 2020
-- `Figures` - code for generating figures in the paper
+- `Figures` - code for generating figures in the paper (Fig 6, S5 were generated from scripts in the SVM folder)
 
 ## Running DART on your own MS2-MCP Data
 
@@ -54,7 +52,7 @@ Two main scripts can be run directly from the terminal on MS2-MCP data:
 
 ---
 
-### Example Workflow: `eve_data`
+### Example Workflow: results will stored be in the folder `eve_data`, example data are in `eve_data/data`
 
 Suppose your data is stored in a CSV file, where **each row corresponds to the fluorescence time series of a single cell**.
 
@@ -84,34 +82,42 @@ Suppose your data is stored in a CSV file, where **each row corresponds to the f
 | `csv-dir` | String | Directory containing your experimental CSV files | **Required** |
 | `out-dir` | String | Output directory (must match the one from Step 1) | **Required** |
 | `gene` | String | Gene name (used for labeling outputs) | **Required** |
-| `seed` | Integer | Random seed for selecting trained model | 1 |
+| `train-seeds` | Integer | Random seed for selecting trained model | 1 |
 | `obst` | Float64 | Time resolution (min) | **Required** |
 | `rn-header` | Flag | Include if CSV files have a header row | `false` |
 
 ---
 
-#### Step 1. Generate Synthetic Data and Train a Model 
+#### Step 1. Generate Synthetic Data and Train a Model (This step took around 400 seconds with A100 GPU)
 ```bash
 julia DART_gen_train.jl \
   --L1 1500 --L 6605 --tau 2.33 --num 40 --obst 0.33 --tend 50.0 \
   --train-seeds 1 \
   --out-dir eve_data/
 ```
+#### Outputs
 
-#### Step 2. Apply the Trained Model to Experimental Data
+For each experimental setting (which may consist of multiple input CSV files), the following are generated:
+
+| File | Format | Description |
+|------|--------|-------------|
+| `gen_ntest.jld2` | JLD2 | Synthetic data generated for this setting |
+| `trained_modelbnb_seed_i.bson` | BSON | Trained deep learning model for this setting |
+
+
+#### Step 2. Apply the Trained Model to Experimental Data (took around)
 ```bash
 julia DART_trace.jl \
   --csv-dir eve_data/data \
   --out-dir eve_data/ \
   --gene eve \
-  --seed 1 \
+  --train-seeds 1 \
   --obst 0.33 \
   --rn-header 
 ```
+#### Outputs
 
-### Outputs
-
-For each input CSV file, the following results are generated:
+For each input CSV file within an experimental setting, the following results are generated:
 
 | File | Format | Description |
 |------|--------|-------------|
