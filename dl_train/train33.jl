@@ -1,3 +1,5 @@
+ENV["JULIA_CUDA_USE_BINARYBUILDER"] = "true"
+
 using Random, BSON
 using Flux
 using Flux: train!

@@ -1,3 +1,11 @@
+ENV["JULIA_CUDA_USE_BINARYBUILDER"] = "true"
+
+using Random, BSON
+using Flux
+using Flux: train!
+using Flux: onehotbatch, logitcrossentropy
+using CUDA,ProgressMeter
+
 function run_train(seed::Int,ref_data,folder_name::String,model_name::String,noise::Bool)
     # Set random seed
     Random.seed!(seed)
