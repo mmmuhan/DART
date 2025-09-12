@@ -82,7 +82,7 @@ Suppose your data is stored in a CSV file, where **each row corresponds to the f
 | `csv-dir` | String | Directory containing your experimental CSV files | **Required** |
 | `out-dir` | String | Output directory (must match the one from Step 1) | **Required** |
 | `gene` | String | Gene name (used for labeling outputs) | **Required** |
-| `train-seeds` | Integer | Random seed for selecting trained model | 1 |
+| `train-seeds` | Integer | Random seed for the trained model | 1 |
 | `obst` | Float64 | Time resolution (min) | **Required** |
 | `rn-header` | Flag | Include if CSV files have a header row | `false` |
 
@@ -105,7 +105,7 @@ For each experimental setting (which may consist of multiple input CSV files), t
 | `trained_modelbnb_seed_i.bson` | BSON | Trained deep learning model for this setting |
 
 
-#### Step 2. Apply the Trained Model to Experimental Data (took around)
+#### Step 2. Apply the Trained Model to Experimental Data (took around 40 seconds)
 ```bash
 julia DART_trace.jl \
   --csv-dir eve_data/data \
