@@ -15,6 +15,7 @@
   - `true_rev2345.npz` (ground-truth)  
   - `ml_rev2345.npz` (DART)
 
+The following python scripts were tested with Python 3.10.16, dependencies with versions are in listed in requirement.txt
 - **`svm_true.py`**  
   Run SVM classification using ground-truth input.  
   *Output:* confusion matrix, ROC curve  
