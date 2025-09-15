@@ -3,7 +3,7 @@
 - `gen_eve.jl` - run to obtain:
   - trained DART model: `ntrained_modelbnb_seed_1.bson`
 
-- `eve_bootsrap.jl` — run to obtain `boot_dl_results.jld2`, including results for:
+- `eve_bootstrap.jl` — run to obtain `boot_dl_results.jld2`, including results for:
   - mean on rate
   - mean off rate
   - standard deviation on rate
