@@ -8,7 +8,7 @@ Preprint: https://doi.org/10.1101/2025.09.02.673499s
 
 - Julia 1.10.4 (environment generated with this version)
 - Dependencies listed in `Project.toml` / `Manifest.toml`
-- GPU recommended for training scripts
+- GPU recommended for deep learning training (tested on NVIDIA A100 in our paper).
 
 ## Installation
 
