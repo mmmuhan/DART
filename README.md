@@ -70,7 +70,7 @@ Suppose your data is stored in a CSV file, where **each row corresponds to the f
 | `num` | Integer | Number of cells | **Required** |
 | `obst` | Float64 | Time resolution (min) | **Required** |
 | `tend` | Float64 | Total experiment time (min) | **Required** |
-| `n_level` | Float64 | Technical noise CV | 0.05 |
+| `n-level` | Float64 | Technical noise CV | 0.05 |
 | `seed` | Integer | Random seed for generating synthetic data | 1 |
 | `train-seeds` | Integer | Random seed for training (can provide multiple seeds, e.g. `1,2,3`) | 1 |
 | `out-dir` | String | Output directory | **Required** |
