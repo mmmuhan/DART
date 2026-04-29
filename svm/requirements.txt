@@ -1,8 +1,8 @@
-numpy==1.23.5  
-pandas==1.5.3
-scikit-learn==1.6.1
-matplotlib==3.10.1
+numpy==2.3.5  
+pandas==2.3.3
+scikit-learn==1.8.0
+matplotlib==3.10.8
 seaborn==0.13.2   
-tqdm==4.66.5
-joblib==1.4.2    
-
+tqdm==4.67.1
+joblib==1.5.3 
+pyabc==0.12.16   
