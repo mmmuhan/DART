@@ -59,7 +59,7 @@ const CONFIGS = [
     ),
 ]
 
-function make_dataset(cfg; target=4000, save_dir="synthetic_data/svm")
+function make_dataset(cfg; target=4000, save_dir="synthetic_data/svm/dart")
     sob = SobolSeq(cfg.lb, cfg.ub)
 
     out = Vector{Any}()
@@ -109,9 +109,11 @@ function make_dataset(cfg; target=4000, save_dir="synthetic_data/svm")
     
 end
 
+mkpath("synthetic_data/svm/true")
+mkpath("synthetic_data/svm/dart")
+
 # generate multiple off-state synthetic data
 tel_ntest   = make_dataset(CONFIGS[1])
-mkpath("synthetic_data/svm/true")
 tel_times   = [m.even_time for m in tel_ntest]
 @save "synthetic_data/svm/true/tel_times.jld2" tel_times # save ground-truth time data
 

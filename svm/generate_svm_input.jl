@@ -62,23 +62,23 @@ perm2_met_dl = load_copy(joinpath(DART_DIR, "nperm2_dlnb1_compare_seed_1.jld2"))
 
 
 tel_ms = [];
-for d in tel_met_dl
-    push!(tel_ms, (even_time = d.binart, label = 1, acc = d.acc))
+for (i,d) in enumerate(tel_met_dl)
+    push!(tel_ms, (even_time = d.binart, label = 1, acc = d.acc, id = i))
 end
 
 perm_ms = [];
-for d in perm_met_dl
-    push!(perm_ms, (even_time = d.binart, label = 2, acc = d.acc))
+for (i,d) in enumerate(perm_met_dl)
+    push!(perm_ms, (even_time = d.binart, label = 2, acc = d.acc, id = i))
 end
 
 perm1_ms = [];
-for d in perm1_met_dl
-    push!(perm1_ms, (even_time = d.binart, label = 3, acc = d.acc))
+for (i,d) in enumerate(perm1_met_dl)
+    push!(perm1_ms, (even_time = d.binart, label = 3, acc = d.acc, id = i))
 end
 
 perm2_ms = [];
-for d in perm2_met_dl
-    push!(perm2_ms, (even_time = d.binart, label = 4, acc = d.acc))
+for (i,d) in enumerate(perm2_met_dl)
+    push!(perm2_ms, (even_time = d.binart, label = 4, acc = d.acc, id = i))
 end
 
 

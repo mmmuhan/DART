@@ -50,7 +50,7 @@ const CONFIGS = [
     ),
 ]
 
-function make_dataset(cfg; target=4000, save_dir="synthetic_data/svmon")
+function make_dataset(cfg; target=4000, save_dir="synthetic_data/svmon/dart")
     sob = SobolSeq(cfg.lb, cfg.ub)
 
     out = Vector{Any}()
@@ -100,16 +100,17 @@ function make_dataset(cfg; target=4000, save_dir="synthetic_data/svmon")
 end
 
 # generate multiple off-state synthetic data
-mkpath("synthetic_data/svmon")
+mkpath("synthetic_data/svmon/true")
+mkpath("synthetic_data/svmon/dart")
 
 on2_ntest   = make_dataset(CONFIGS[1])
 on2_times   = [m.even_time for m in on2_ntest]
-@save "synthetic_data/svmon/on2_times.jld2" on2_times
+@save "synthetic_data/svmon/true/on2_times.jld2" on2_times
 
 on3_ntest = make_dataset(CONFIGS[2])
 on3_times   = [m.even_time for m in on3_ntest]
-@save "synthetic_data/svmon/on3_times.jld2" on3_times
+@save "synthetic_data/svmon/true/on3_times.jld2" on3_times
 
 on4_ntest = make_dataset(CONFIGS[3]);
 on4_times   = [m.even_time for m in on4_ntest]
-@save "synthetic_data/svmon/on4_times.jld2" on4_times;
+@save "synthetic_data/svmon/true/on4_times.jld2" on4_times;

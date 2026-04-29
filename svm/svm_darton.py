@@ -247,7 +247,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='SVM classification')
 
     # Data
-    parser.add_argument('--train-data', type=str, default='synthetic_data/svmon/ml_revon2345.npz',
+    parser.add_argument('--train-data', type=str, default='synthetic_data/svmon/dart/ml_revon2345.npz',
                         help='Path to training data (.npz) with 4 classes (labels 1..4)')
     parser.add_argument('--test-size', type=float, default=0.2,
                         help='Proportion of test set')
@@ -266,7 +266,7 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=int, default=1, help='Verbose')
 
     # Output
-    parser.add_argument('--save_dir', type=str, default='synthetic_data/svmon', help='Output folder path')
+    parser.add_argument('--save_dir', type=str, default='synthetic_data/dart/svmon', help='Output folder path')
 
     args, _ = parser.parse_known_args()
     results = main(args)

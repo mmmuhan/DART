@@ -13,7 +13,7 @@ include(joinpath(@__DIR__, "..", "utils", "utils.jl"))
 # -----------------------
 # Config
 # -----------------------
-const BASE_NDIR  = "synthetic_data/svmon/n"  # input/output directory for dl_metrics
+const BASE_NDIR  = "synthetic_data/svmon/dart/n"  # input/output directory for dl_metrics
 const blevel  = "nb1"                   # metric class name
 const noise    = true                    # whether to save the results
 
@@ -41,7 +41,7 @@ function run_case(file::String, varname::String, tag::String)
 end
 
 # copy paste the trained DART for inference
-cp("synthetic_data/real_cv0_data_res/ntrained_modelnb1_seed_1.bson", "synthetic_data/svmon/ntrained_modelnb1_seed_1.bson")
+cp("synthetic_data/real_cv0_data_res/ntrained_modelnb1_seed_1.bson", "synthetic_data/svmon/dart/ntrained_modelnb1_seed_1.bson", force=true)
 
 # -----------------------
 # Run all cases
@@ -49,10 +49,10 @@ cp("synthetic_data/real_cv0_data_res/ntrained_modelnb1_seed_1.bson", "synthetic_
 results = Dict{String,Any}()
 
 # 3-state
-results["on2"] = run_case("synthetic_data/svmon/on2_ntest.jld2", "on2_ntest",  "on2")
+results["on2"] = run_case("synthetic_data/svmon/dart/on2_ntest.jld2", "on2_ntest",  "on2")
 
 # 4-state
-results["on3"] = run_case("synthetic_data/svmon/on3_ntest.jld2", "on3_ntest", "on3")
+results["on3"] = run_case("synthetic_data/svmon/dart/on3_ntest.jld2", "on3_ntest", "on3")
 
 # 5-state
-results["on4"] = run_case("synthetic_data/svmon/on4_ntest.jld2", "on4_ntest", "on4")
+results["on4"] = run_case("synthetic_data/svmon/dart/on4_ntest.jld2", "on4_ntest", "on4")

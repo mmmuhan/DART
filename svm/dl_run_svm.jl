@@ -13,7 +13,7 @@ include(joinpath(@__DIR__, "..", "utils", "utils.jl"))
 # -----------------------
 # Config
 # -----------------------
-const BASE_NDIR  = "synthetic_data/svm/n"  # input/output directory for dl_metrics
+const BASE_NDIR  = "synthetic_data/svm/dart/n"  # input/output directory for dl_metrics
 const blevel  = "nb1"                   # metric class name
 const noise    = true                    # whether to save the results
 
@@ -41,7 +41,7 @@ function run_case(file::String, varname::String, tag::String)
 end
 
 # copy paste the trained DART for inference
-cp("synthetic_data/real_cv0_data_res/ntrained_modelnb1_seed_1.bson", "synthetic_data/svm/ntrained_modelnb1_seed_1.bson")
+cp("synthetic_data/real_cv0_data_res/ntrained_modelnb1_seed_1.bson", "synthetic_data/svm/dart/ntrained_modelnb1_seed_1.bson", force=true)
 
 # -----------------------
 # Run all cases
@@ -49,13 +49,13 @@ cp("synthetic_data/real_cv0_data_res/ntrained_modelnb1_seed_1.bson", "synthetic_
 results = Dict{String,Any}()
 
 # 2-state
-results["tel"] = run_case("synthetic_data/svm/tel_ntest.jld2",   "tel_ntest",   "tel")
+results["tel"] = run_case("synthetic_data/svm/dart/tel_ntest.jld2",   "tel_ntest",   "tel")
 
 # 3-state
-results["perm"] = run_case("synthetic_data/svm/perm_ntest.jld2", "perm_ntest",  "perm")
+results["perm"] = run_case("synthetic_data/svm/dart/perm_ntest.jld2", "perm_ntest",  "perm")
 
 # 4-state
-results["perm1"] = run_case("synthetic_data/svm/perm1_ntest.jld2", "perm1_ntest", "perm1")
+results["perm1"] = run_case("synthetic_data/svm/dart/perm1_ntest.jld2", "perm1_ntest", "perm1")
 
 # 5-state
-results["perm2"] = run_case("synthetic_data/svm/perm2_ntest.jld2", "perm2_ntest", "perm2")
+results["perm2"] = run_case("synthetic_data/svm/dart/perm2_ntest.jld2", "perm2_ntest", "perm2")

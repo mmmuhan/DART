@@ -7,7 +7,9 @@ using JLD2, NPZ, Random
 
 # ground truth
 
-TRUE_DIR = joinpath("synthetic_data", "svmon")
+cp("synthetic_data/svm/true/tel_times.jld2", "synthetic_data/svmon/true/tel_times.bson", force=true)
+
+TRUE_DIR = joinpath("synthetic_data", "svmon", "true")
 # --- Load ---
 @load joinpath(TRUE_DIR, "tel_times.jld2")   tel_times
 @load joinpath(TRUE_DIR, "on2_times.jld2")  on2_times
@@ -51,8 +53,10 @@ npzwrite(joinpath(TRUE_DIR, "true_revon2345.npz"), Dict("xmat" => xmat, "label" 
 # binarized promoter states from DART
 load_copy(path) = ( @load path rn_met_dl; copy(rn_met_dl) )
 
+cp("synthetic_data/svm/dart/ntel_dlnb1_compare_seed_1.jld2", "synthetic_data/svmon/dart/ntel_dlnb1_compare_seed_1.jld2", force=true)
+
 # --- Base path ---
-DART_DIR = joinpath("synthetic_data", "svmon")
+DART_DIR = joinpath("synthetic_data", "svmon", "dart")
 
 # --- Load binarized promoter states inferred from deep learning part ---
 tel_met_dl   = load_copy(joinpath(DART_DIR, "ntel_dlnb1_compare_seed_1.jld2"))

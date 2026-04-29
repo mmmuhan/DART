@@ -22,7 +22,7 @@ import joblib
 # ------------------------------
 def extract_features(data):
     """extract statistical features from time distributions
-       Input data shape: (n_samples, n_timepoints)
+       Input data shape: (n_samples, n_features)
     """
     n_features = data.shape[1]
 
@@ -247,7 +247,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='SVM classification')
 
     # Data
-    parser.add_argument('--train-data', type=str, default='svm/dart/ml_rev2345.npz',
+    parser.add_argument('--train-data', type=str, default='synthetic_data/svm/dart/ml_rev2345.npz',
                         help='Path to training data (.npz) with 4 classes (labels 1..4)')
     parser.add_argument('--test-size', type=float, default=0.2,
                         help='Proportion of test set')
@@ -261,12 +261,12 @@ if __name__ == "__main__":
     # Training
     parser.add_argument('--cv', type=int, default=5, help='CV folds')
     parser.add_argument('--scoring', type=str, default='roc_auc_ovo', help='Scoring')
-    parser.add_argument('--random-state', type=int, default=1, help='Random seed')
+    parser.add_argument('--random-state', type=int, default=2, help='Random seed') # seed2
     parser.add_argument('--n-jobs', type=int, default=-1, help='Parallel jobs')
     parser.add_argument('--verbose', type=int, default=1, help='Verbose')
 
     # Output
-    parser.add_argument('--save_dir', type=str, default='svm/dart', help='Output folder path')
+    parser.add_argument('--save_dir', type=str, default='synthetic_data/svm/dart', help='Output folder path')
 
     args, _ = parser.parse_known_args()
     results = main(args)
