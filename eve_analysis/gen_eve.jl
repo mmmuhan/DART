@@ -2,11 +2,10 @@ using Pkg
 Pkg.activate(normpath(joinpath(@__DIR__, "..")))
 
 using Random, StatsBase, Statistics, Sobol, JLD2, Printf
-include(normpath(joinpath(@__DIR__, "..", "dl_train", "train33_data.jl")))
-include(normpath(joinpath(@__DIR__, "..", "dl_train", "test_model.jl")))
+include(normpath(joinpath(@__DIR__, "..", "dl_train", "train33_data_keff.jl")))
 include(normpath(joinpath(@__DIR__, "..", "utils", "utils.jl")))
 include(normpath(joinpath(@__DIR__, "..", "utils", "reactions.jl")))
-include(normpath(joinpath(@__DIR__, "..", "utils", "ssa.jl")))
+include(normpath(joinpath(@__DIR__, "..", "utils", "ssa_multi.jl")))
 
 gen_ntest_eve = [];
 
@@ -27,7 +26,7 @@ while length(gen_ntest_eve)<2700
     
     t0, L1, L, I0 = 1.0, 1500, 1500+5165, 1.0
     
-    if 1<= offt/ont <= 15  && 1 <= bs <= 150 && ont >= obst
+    if 0.1<= offt/ont <= 20  && 1 <= bs <= 150 && ont >= obst
         res_test = generate_synthetic(construct_prob_delaygen,vcat(k,[0,tau,1.,50]),L1,L,I0,nums,obst,true,0.05,[4,5,6])
         even_syn, even_nsyn, even_trace = res_test.syn, res_test.nsyn, res_test.true_trace
         if length(findall(x->x==0,sum.(even_syn)))<=1 #at most one trace that doesn't have any pulse
@@ -45,4 +44,4 @@ mkpath(dirname(save_path))
 @info @sprintf("Saved %d samples to %s", length(gen_ntest_eve), save_path)
 
 
-model, train_losses, val_losses = run_train(1,gen_ntest_eve,"eve_analysis/n","bnb",true);
+model, met, preds = run_train_rates(1,gen_ntest_eve,"eve_analysis/n","bnb",true);
