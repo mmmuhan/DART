@@ -10,10 +10,10 @@ include(normpath(joinpath(@__DIR__, "..", "utils", "utils.jl")))
 include(joinpath(@__DIR__,  "..", "dl_train", "train33.jl"))
 include(joinpath(@__DIR__,  "..", "dl_train", "test_model.jl"))
 
-function make_ref_dataset(which::Union{Symbol,String};
+function make_gen2_dataset(which::Union{Symbol,String};
     target_n::Int = 600,
-    lb::AbstractVector = [2e-3,2e-3,1e-3,1.] ,
-    ub::AbstractVector = [20.,20.,10.,50.],
+    lb::AbstractVector = [2e-3,2e-3,2e-3,2e-3,2e-3,2e-3,1.,1.] ,
+    ub::AbstractVector = [20.,20.,20.,20.,20.,20.,50.,50.],
     seed::Integer = 0,
     savefile::Union{Nothing,String} = nothing,
 )
@@ -28,9 +28,9 @@ function make_ref_dataset(which::Union{Symbol,String};
     while length(out) < target_n
         k = Sobol.next!(Sobol_seq)
 
-        ont = compute_ont(k,3,"ref") 
-        offt = compute_offt(k,3,"ref")
-        bs = k[4]*ont
+        ont = compute_ont(k,3,"gen2") 
+        offt = compute_offt(k,3,"gen2")
+        bs = (k[6]*k[7]+k[5]*k[8])/(k[4]*k[6])
         r    = offt / ont
 
         ratio = 10^(-2 + (1 - (-2)) * rand())
@@ -52,10 +52,10 @@ function make_ref_dataset(which::Union{Symbol,String};
 
         if in_bucket && (1 <= bs <= 150) && (0.1 <= tau < 10) && (ont >= obst)
             res = generate_synthetic(
-                construct_prob_delayref,
+                construct_prob_delaygen2,
                 vcat(k, [0.0, tau, 1.0, 30.0]),
                 0.0, 1.0, 1.0,
-                nums, obst, false, 0.05, 3
+                nums, obst, false, 0.05, [3,4]
             )
 
             even_syn   = res.syn
@@ -88,20 +88,20 @@ end
 #mkpath(outdir)
 
 # Call like:
-refb   = make_ref_dataset(:b;   target_n=600, savefile="synthetic_data/ideal_data_res/refb_mtest.jld2")
-rn_data = copy(refb[1:600]);
+gen2b   = make_gen2_dataset(:b;   target_n=600, savefile="synthetic_data/ideal_data_res/gen2b_mtest.jld2")
+rn_data = copy(gen2b[1:600]);
 rn_params = [d.p for d in rn_data];
-rn_data_true = copy(refb[1:600]);
-metb_ref = dl_metrics(58, "synthetic_data/ideal_data_res/m", "synthetic_data/ideal_data_res/m", "b33", "ref", false); 
+rn_data_true = copy(gen2b[1:600]);
+metb_gen2 = dl_metrics(58, "synthetic_data/ideal_data_res/m", "synthetic_data/ideal_data_res/m", "b33", "gen2", false); 
 
-refnb1 = make_ref_dataset(:nb1; target_n=600, savefile="synthetic_data/ideal_data_res/refnb1_mtest.jld2")
-rn_data = copy(refnb1[1:600]);
+gen2nb1 = make_gen2_dataset(:nb1; target_n=600, savefile="synthetic_data/ideal_data_res/gen2nb1_mtest.jld2")
+rn_data = copy(gen2nb1[1:600]);
 rn_params = [d.p for d in rn_data];
-rn_data_true = copy(refnb1[1:600]);
-metnb1_ref = dl_metrics(11, "synthetic_data/ideal_data_res/m", "synthetic_data/ideal_data_res/m", "nb133", "ref", false); 
+rn_data_true = copy(gen2nb1[1:600]);
+metnb1_gen2 = dl_metrics(11, "synthetic_data/ideal_data_res/m", "synthetic_data/ideal_data_res/m", "nb133", "gen2", false); 
 
-refnb0 = make_ref_dataset(:nb0; target_n=600, savefile="synthetic_data/ideal_data_res/refnb0_mtest.jld2");
-rn_data = copy(refnb0[1:600]);
+gen2nb0 = make_gen2_dataset(:nb0; target_n=600, savefile="synthetic_data/ideal_data_res/gen2nb0_mtest.jld2");
+rn_data = copy(gen2nb0[1:600]);
 rn_params = [d.p for d in rn_data];
-rn_data_true = copy(refnb0[1:600]);
-metnb0_ref = dl_metrics(49, "synthetic_data/ideal_data_res/m", "synthetic_data/ideal_data_res/m", "nb033", "ref", false); 
+rn_data_true = copy(gen2nb0[1:600]);
+metnb0_gen2 = dl_metrics(49, "synthetic_data/ideal_data_res/m", "synthetic_data/ideal_data_res/m", "nb033", "gen2", false); 
