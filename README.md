@@ -52,60 +52,69 @@ Two main scripts can be run directly from the terminal on MS2-MCP data:
 
 ---
 
-### Example Workflow: results will stored be in the folder `eve_data`, example data are in `eve_data/data`
+## Example Workflow
 
-Suppose your data is stored in a CSV file, where **each row corresponds to the fluorescence time series of a single cell**.
+Results will be stored in the folder `eve_data/`. Example data is provided in `eve_data/data/`.
+
+Your input data should be a CSV file where **each row corresponds to the fluorescence time series of a single cell**.
 
 ---
 
 ### Arguments
 
-#### For `DART_gen_train.jl`
+#### `DART_gen_train.jl`
 
 | Argument | Type | Description | Default / Requirement |
 |----------|------|-------------|------------------------|
-| `L1` | Int | MS2 sequence length (bp) | **Required** |
-| `L` | Int | `L1 + L2`, where `L2` is gene length | **Required** |
-| `tau` | Float64 | Elongation time (min) | **Required** |
-| `num` | Integer | Number of cells | **Required** |
-| `obst` | Float64 | Time resolution (min) | **Required** |
-| `tend` | Float64 | Total experiment time (min) | **Required** |
-| `n-level` | Float64 | Technical noise CV | 0.05 |
-| `seed` | Integer | Random seed for generating synthetic data | 1 |
-| `train-seeds` | Integer | Random seed for training (can provide multiple seeds, e.g. `1,2,3`) | 1 |
-| `out-dir` | String | Output directory | **Required** |
+| `--L1` | Int | MS2 sequence length (bp) | **Required** |
+| `--L` | Int | `L1 + L2`, where `L2` is gene length (bp) | **Required** |
+| `--tau` | Float64 | Elongation time (min) | **Required** |
+| `--num` | Int | Number of cells | **Required** |
+| `--obst` | Float64 | Time resolution (min) | **Required** |
+| `--tend` | Float64 | Total experiment time (min) | **Required** |
+| `--n-level` | Float64 | Technical noise CV | `0.05` |
+| `--seed` | Int | Random seed for generating synthetic data | `1` |
+| `--train-seeds` | Int | Random seed(s) for training (comma-separated, e.g. `1,2,3`) | `1` |
+| `--out-dir` | String | Output directory | **Required** |
 
-#### For `DART_trace.jl`
+#### `DART_trace.jl`
 
 | Argument | Type | Description | Default / Requirement |
 |----------|------|-------------|------------------------|
-| `csv-dir` | String | Directory containing your experimental CSV files | **Required** |
-| `out-dir` | String | Output directory (must match the one from Step 1) | **Required** |
-| `gene` | String | Gene name (used for labeling outputs) | **Required** |
-| `train-seeds` | Integer | Random seed for the trained model | 1 |
-| `obst` | Float64 | Time resolution (min) | **Required** |
-| `rn-header` | Flag | Include if CSV files have a header row | `false` |
+| `--csv-dir` | String | Directory containing your experimental CSV files | **Required** |
+| `--out-dir` | String | Output directory (must match the one from Step 1) | **Required** |
+| `--gene` | String | Gene name (used for labeling outputs) | **Required** |
+| `--train-seeds` | Int | Random seed of the trained model to load | `1` |
+| `--obst` | Float64 | Time resolution (min) | **Required** |
+| `--tau` | Float64 | Elongation time (min) | **Required** |
+| `--rn-header` | Flag | Pass if CSV files include a header row | `false` |
 
 ---
 
-#### Step 1. Generate Synthetic Data and Train a Model (This step took around 400 seconds with A100 GPU)
+### Step 1 — Generate Synthetic Data and Train a Model
+
+*Takes around 400 seconds on an A100 GPU.*
+
 ```bash
 julia DART_gen_train.jl \
   --L1 1500 --L 6605 --tau 2.33 --num 40 --obst 0.33 --tend 50.0 \
   --train-seeds 1 \
   --out-dir eve_data/
 ```
+
 #### Outputs
 
-For each experimental setting (which may consist of multiple input CSV files), the following are generated:
+For each experimental setting, the following files are generated:
 
 | File | Format | Description |
 |------|--------|-------------|
 | `gen_ntest.jld2` | JLD2 | Synthetic data generated for this setting |
-| `trained_modelbnb_seed_i.bson` | BSON | Trained deep learning model for this setting |
+| `trained_modelbnb_seed_i.bson` | BSON | Trained deep learning model (one per seed `i`) |
 
+### Step 2 — Apply the Trained Model to Experimental Data
 
-#### Step 2. Apply the Trained Model to Experimental Data (took around 40 seconds)
+*Takes around 40 seconds.*
+
 ```bash
 julia DART_trace.jl \
   --csv-dir eve_data/data \
@@ -113,13 +122,16 @@ julia DART_trace.jl \
   --gene eve \
   --train-seeds 1 \
   --obst 0.33 \
-  --rn-header 
+  --tau 2.33 \
+  --rn-header
 ```
+
 #### Outputs
 
-For each input CSV file within an experimental setting, the following results are generated:
+For each input CSV file, the following results are generated (where `i` is the seed and `filename` is the input CSV's base name):
 
 | File | Format | Description |
 |------|--------|-------------|
-| `results_seed_i_filename_trace.csv` | CSV   | Binarized promoter traces |
-| `results_seed_i_filename_trace.jld2` | JLD2  | Same as above, stored in Julia’s JLD2 format |
+| `results_seedi_filename_trace.csv` | CSV | Binarized promoter traces |
+| `results_seedi_filename_rates.csv` | CSV | Effective transcription rates |
+| `results_seedi_filename.jld2` | JLD2 | Both traces and rates, stored in Julia's JLD2 format |
