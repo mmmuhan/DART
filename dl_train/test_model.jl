@@ -160,7 +160,8 @@ function dl_metrics(
         if rem <= total
             xchunk = xb[:, :, rem:total]
             yslice = Base.invokelatest(model, xchunk) .> 0.5
-            y_pred_binary = cat(y_pred_binary, yslice; dims=3)
+            y_pred_binary = y_pred_binary === nothing ? yslice : cat(y_pred_binary, yslice; dims=3)
+            #y_pred_binary = cat(y_pred_binary, yslice; dims=3)
         end
     end
 
