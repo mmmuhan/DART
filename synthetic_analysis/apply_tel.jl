@@ -84,7 +84,7 @@ DATASETS = Dict(
 )
 
 for (name, (path, _, bucket)) in DATASETS
-    make_dataset(bucket; target_n=3300, savefile=path)
+    make_dataset(bucket; target_n=600, savefile=path)
 end
 
 # -------------------------------------------------------
