@@ -17,6 +17,10 @@ function compute_offt(k, id, rn)
         return (k[1]*k[3]+k[1]*k[4]+k[2]*k[4])/(k[1]*k[3]*k[5])
     elseif rn == "perm2"
         return (k[1]*k[3]*k[5] + k[2]*k[4]*k[6] + k[1]*(k[3] + k[4])*k[6])/(k[1]*k[3]*k[5]*k[7])
+    elseif rn == "m2"
+        return (k[4]*k[5]*k[6]+k[6]*(k[4]+k[7])*k[8]+k[1]*(k[3]+k[4]+k[7])*(k[5]+k[8])+ k[3]*(k[6]*k[7]+k[5]*(k[6]+k[7])+(k[6]+k[7])*k[8]))/(k[1]*k[3]*k[7]*(k[5]+k[8]))
+    elseif rn == "gen2"
+        return (k[1]+k[2])/(k[1]*k[3])
     elseif rn == "gen"
         return (k[2]*k[4]+k[1]*(k[3]+k[4]))/(k[1]*k[3]*k[5])
     end
@@ -25,6 +29,16 @@ end
 function compute_ont(k, id, rn)
     if rn == "gen"
         return (k[7]*k[9]+k[10]*(k[7]+k[8]))/(k[6]*k[8]*k[10])
+    elseif rn == "m2"
+        return 1/k[2]
+    elseif rn == "on2"
+        return (k[3] + k[4])/(k[2]*k[4])
+    elseif rn == "on3"
+        return (k[4]*k[6] + k[3]*(k[5] + k[6])) / (k[2]*k[4]*k[6])
+    elseif rn == "on4"
+        return (k[3]*k[5]*k[7] + k[4]*k[6]*k[8] + k[3]*(k[5] + k[6])*k[8]) / (k[2]*k[4]*k[6]*k[8])
+    elseif rn == "gen2"
+        return (k[5]+k[6])/(k[4]*k[6])
     else       
         return 1/k[id]
     end
@@ -67,7 +81,7 @@ end
 #c1: G3 -> G3 + N, N => τ 0
 #d: N -> 0
 # 1. G1, 2. G2, 3. G3, 4. N
-function construct_prob_delayref(params) # 3 gene states 1 reversible 1 state produces mRNA
+function construct_prob_delayref(params) # 3 gene states 1 on state produces mRNA
     
     b1, a1, b2, c1, d, τ, t0, tf = params
     rates = [b1, a1, b2, c1, d]
@@ -84,6 +98,42 @@ function construct_prob_delayref(params) # 3 gene states 1 reversible 1 state pr
     delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
     
     u0 = [1,0,0,0] # initial condition
+    de_chan0 = [[]] # initial delay channel
+    tspan = (t0,tf)
+    
+    dprob = DiscreteProblem(u0, tspan)
+    djprob = DelayJumpProblem(dprob, DelayRejection(), jumpset, delayjumpset, de_chan0, save_positions = (false,false), save_delay_channel = true)
+    return djprob
+end
+
+#a1: G1 -> G2
+#a2: G2 -> G3
+#a3: G3 -> G4
+#a4: G4 -> G3
+#a5: G5 -> G4
+#a6: G1 -> G5
+#a7: G4 -> G1
+#a8: G5 -> G3
+#c1: G2 -> G2 + N, N => τ 0
+#d: N -> 0
+# 1. G1, 2. G2, 3. G3, 4. G4, 5. G5, 6. N
+function construct_prob_delaym2(params) # 3 gene states 1 on state produces mRNA
+    
+    a1, a2, a3, a4, a5, a6, a7, a8, c1, d, τ, t0, tf = params
+    rates = [a1, a2, a3, a4, a5, a6, a7, a8, c1, d]
+    
+    # Markovian
+    react_stoich = [[1=>1],[2=>1],[3=>1],[4=>1],[5=>1],[1=>1],[4=>1],[5=>1],[2=>1],[6=>1]] # reactant index => reactant coefficient
+    net_stoich = [[1=>-1,2=>1],[2=>-1,3=>1],[3=>-1,4=>1],[4=>-1,3=>1],[5=>-1,4=>1],[1=>-1,5=>1],[4=>-1,1=>1],[5=>-1,3=>1],[6=>1],[6=>-1]] # reactant index => net change, excluding 0 change
+    mass_action_jump = MassActionJump(rates, react_stoich, net_stoich; scale_rates = false) # optimized representation for ConstantRateJumps
+    jumpset = JumpSet((),(),nothing,mass_action_jump)
+    
+    # non-Markovian
+    delay_trigger = Dict(9=>[1=>τ]) # indices of reactions that can trigger delay reactions=>[delay channels=>delay time]
+    delay_complete = Dict(1=>[6=>-1]) # indices of delay channels =>[species index=>net change]
+    delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
+    
+    u0 = [1,0,0,0,0,0] # initial condition
     de_chan0 = [[]] # initial delay channel
     tspan = (t0,tf)
     
@@ -195,6 +245,154 @@ function construct_prob_delayperm2(params) # with true time (not evenly distribu
     djprob = DelayJumpProblem(dprob, DelayRejection(), jumpset, delayjumpset, de_chan0, save_positions = (false,false), save_delay_channel = true)
     return djprob
 end
+
+#a1: G1 -> G2
+#a2: G2 -> G1
+#a3: G2 -> G3
+#a4: G3 -> G2
+#c1: G2 -> G2 + N, N => τ 0
+#c2: G3 -> G3 + N, N => τ 0
+#d: N -> 0
+# 1. G1, 2. G2, 3. G3, 4. N
+
+function construct_prob_delayon2(params) # with true time (not evenly distributed)
+    
+    a1, a2, a3, a4, c1, c2, d, τ, t0, tf = params
+    rates = [a1, a2, a3, a4, c1, c2, d]
+    
+    # Markovian
+    react_stoich = [[1=>1],[2=>1],[2=>1],[3=>1],[2=>1],[3=>1],[4=>1]] # reactant index => reactant coefficient
+    net_stoich = [[1=>-1,2=>1],[2=>-1,1=>1],[2=>-1,3=>1],[3=>-1,2=>1],[4=>1],[4=>1],[4=>-1]] # reactant index => net change, excluding 0 change
+    mass_action_jump = MassActionJump(rates, react_stoich, net_stoich; scale_rates = false) # optimized representation for ConstantRateJumps
+    jumpset = JumpSet((),(),nothing,mass_action_jump)
+    
+    # non-Markovian
+    delay_trigger = Dict(5=>[1=>τ],6=>[1=>τ]) # indices of reactions that can trigger delay reactions=>[delay channels=>delay time]
+    delay_complete = Dict(1=>[4=>-1]) # indices of delay channels =>[species index=>net change]
+    delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
+    
+    u0 = [1,0,0,0] # initial condition
+    de_chan0 = [[]] # initial delay channel
+    tspan = (t0,tf)
+    
+    dprob = DiscreteProblem(u0, tspan)
+    djprob = DelayJumpProblem(dprob, DelayRejection(), jumpset, delayjumpset, de_chan0, save_positions = (false,false), save_delay_channel = true)
+    return djprob
+end
+
+#a1: G1 -> G2
+#a2: G2 -> G1
+#a3: G2 -> G3
+#a4: G3 -> G2
+#a5: G3 -> G4
+#a6: G4 -> G3
+#c1: G2 -> G2 + N, N => τ 0
+#c2: G3 -> G3 + N, N => τ 0
+#c3: G4 -> G4 + N, N => τ 0
+#d: N -> 0
+# 1. G1, 2. G2, 3. G3, 4. G4, 5. N
+
+function construct_prob_delayon3(params) # with true time (not evenly distributed)
+    
+    a1, a2, a3, a4, a5, a6, c1, c2, c3, d, τ, t0, tf = params
+    rates = [a1, a2, a3, a4, a5, a6, c1, c2, c3, d]
+    
+    # Markovian
+    react_stoich = [[1=>1],[2=>1],[2=>1],[3=>1],[3=>1],[4=>1],[2=>1],[3=>1],[4=>1],[5=>1]] # reactant index => reactant coefficient
+    net_stoich = [[1=>-1,2=>1],[2=>-1,1=>1],[2=>-1,3=>1],[3=>-1,2=>1],[3=>-1,4=>1],[4=>-1,3=>1],[5=>1],[5=>1],[5=>1],[5=>-1]] # reactant index => net change, excluding 0 change
+    mass_action_jump = MassActionJump(rates, react_stoich, net_stoich; scale_rates = false) # optimized representation for ConstantRateJumps
+    jumpset = JumpSet((),(),nothing,mass_action_jump)
+    
+    # non-Markovian
+    delay_trigger = Dict(7=>[1=>τ],8=>[1=>τ],9=>[1=>τ]) # indices of reactions that can trigger delay reactions=>[delay channels=>delay time]
+    delay_complete = Dict(1=>[5=>-1]) # indices of delay channels =>[species index=>net change]
+    delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
+    
+    u0 = [1,0,0,0,0] # initial condition
+    de_chan0 = [[]] # initial delay channel
+    tspan = (t0,tf)
+    
+    dprob = DiscreteProblem(u0, tspan)
+    djprob = DelayJumpProblem(dprob, DelayRejection(), jumpset, delayjumpset, de_chan0, save_positions = (false,false), save_delay_channel = true)
+    return djprob
+end
+
+#a1: G1 -> G2
+#a2: G2 -> G1
+#a3: G2 -> G3
+#a4: G3 -> G2
+#a5: G3 -> G4
+#a6: G4 -> G3
+#a7: G4 -> G5
+#a8: G5 -> G4
+#c1: G2 -> G2 + N, N => τ 0
+#c2: G3 -> G3 + N, N => τ 0
+#c3: G4 -> G4 + N, N => τ 0
+#c4: G5 -> G5 + N, N => τ 0
+#d: N -> 0
+# 1. G1, 2. G2, 3. G3, 4. G4, 5. G5, 6. N
+
+function construct_prob_delayon4(params) # with true time (not evenly distributed)
+    
+    a1, a2, a3, a4, a5, a6, a7, a8, c1, c2, c3, c4, d, τ, t0, tf = params
+    rates = [a1, a2, a3, a4, a5, a6, a7, a8, c1, c2, c3, c4, d]
+    
+    # Markovian
+    react_stoich = [[1=>1],[2=>1],[2=>1],[3=>1],[3=>1],[4=>1],[4=>1],[5=>1],[2=>1],[3=>1],[4=>1],[5=>1],[6=>1]] # reactant index => reactant coefficient
+    net_stoich = [[1=>-1,2=>1],[2=>-1,1=>1],[2=>-1,3=>1],[3=>-1,2=>1],[3=>-1,4=>1],[4=>-1,3=>1],[4=>-1,5=>1],[5=>-1,4=>1],[6=>1],[6=>1],[6=>1],[6=>1],[6=>-1]] # reactant index => net change, excluding 0 change
+    mass_action_jump = MassActionJump(rates, react_stoich, net_stoich; scale_rates = false) # optimized representation for ConstantRateJumps
+    jumpset = JumpSet((),(),nothing,mass_action_jump)
+    
+    # non-Markovian
+    delay_trigger = Dict(9=>[1=>τ],10=>[1=>τ],11=>[1=>τ],12=>[1=>τ]) # indices of reactions that can trigger delay reactions=>[delay channels=>delay time]
+    delay_complete = Dict(1=>[6=>-1]) # indices of delay channels =>[species index=>net change]
+    delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
+    
+    u0 = [1,0,0,0,0,0] # initial condition
+    de_chan0 = [[]] # initial delay channel
+    tspan = (t0,tf)
+    
+    dprob = DiscreteProblem(u0, tspan)
+    djprob = DelayJumpProblem(dprob, DelayRejection(), jumpset, delayjumpset, de_chan0, save_positions = (false,false), save_delay_channel = true)
+    return djprob
+end
+
+
+#a1: G1 -> G2
+#a2: G2 -> G1
+#a3: G2 -> G3
+#a4: G3 -> G2
+#a5: G3 -> G4
+#a6: G4 -> G3
+#c1: G3 -> G3 + N, N => τ 0
+#c2: G4 -> G4 + N, N => τ 0
+#d: N -> 0
+# 1. G1, 2. G2, 3. G3, 4. G4, 5. N
+function construct_prob_delaygen2(params) # with true time (not evenly distributed)
+    
+    a1, a2, a3, a4, a5, a6, c1, c2, d, τ, t0, tf = params
+    rates = [a1, a2, a3, a4, a5, a6, c1, c2, d]
+    
+    # Markovian
+    react_stoich = [[1=>1],[2=>1],[2=>1],[3=>1],[3=>1],[4=>1],[3=>1],[4=>1],[5=>1]] # reactant index => reactant coefficient
+    net_stoich = [[1=>-1,2=>1],[2=>-1,1=>1],[2=>-1,3=>1],[3=>-1,2=>1],[3=>-1,4=>1],[4=>-1,3=>1],[5=>1],[5=>1],[5=>-1]] # reactant index => net change, excluding 0 change
+    mass_action_jump = MassActionJump(rates, react_stoich, net_stoich; scale_rates = false) # optimized representation for ConstantRateJumps
+    jumpset = JumpSet((),(),nothing,mass_action_jump)
+    
+    # non-Markovian
+    delay_trigger = Dict(7=>[1=>τ],8=>[1=>τ]) # indices of reactions that can trigger delay reactions=>[delay channels=>delay time]
+    delay_complete = Dict(1=>[5=>-1]) # indices of delay channels =>[species index=>net change]
+    delayjumpset = DelayJumpSet(delay_trigger,delay_complete,Dict())
+    
+    u0 = [1,0,0,0,0] # initial condition
+    de_chan0 = [[]] # initial delay channel
+    tspan = (t0,tf)
+    
+    dprob = DiscreteProblem(u0, tspan)
+    djprob = DelayJumpProblem(dprob, DelayRejection(), jumpset, delayjumpset, de_chan0, save_positions = (false,false), save_delay_channel = true)
+    return djprob
+end
+
 
 #a1: G1 -> G2
 #a2: G2 -> G1
