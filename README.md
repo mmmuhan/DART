@@ -41,7 +41,7 @@ The GitHub repository contains **all analysis code** (see `synthetic_analysis/`)
 - `synthetic_analysis` - scripts to generate synthetic data, train DART, and evaluate the performance (**data `synthetic_data` hosted on Zenodo**)  
 - `svm` - scipts for model selection using SVM classifier
 - `eve_analysis` - application of DART on eve data from Berrocal et al., 2020
-- `Figures` - code for generating figures in the paper (Fig 6, S5 were generated from scripts in the SVM folder)
+- `Figures` - code for generating figures in the paper (Fig 5, S8, S9 were generated from scripts in the SVM folder)
 
 ## Running DART on your own MS2-MCP Data
 
