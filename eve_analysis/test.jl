@@ -27,7 +27,7 @@ for sid in 1:7
         trace_sym = Symbol("dl_trace$(sid)$(fgroup)")
         rate_sym  = Symbol("dl_rate$(sid)$(fgroup)")
 
-        trace_val = vcat(test_result[1].binar_trace...)
+        trace_val = test_result[1].binar_trace
         rate_val  = test_result[1].pred_r
 
         filename = "eve_analysis/trained_trace10/$(String(trace_sym)).jld2"
@@ -38,10 +38,50 @@ for sid in 1:7
     end
 end
 
-using NPZ
+#===
 
-data = Dict{String, Vector{Float64}}()   # adjust eltype if needed
-for i in 1:7, j in 1:3
-    data["$(i)_$(j)"] = offts[i][j]
+using NPZ, JLD2
+
+
+# Reload all 70
+dl_results = Dict{Tuple{Int,Int}, NamedTuple}()
+for sid in 1:7
+    for fgroup in 1:10
+        trace_sym = Symbol("dl_trace$(sid)$(fgroup)")
+        rate_sym  = Symbol("dl_rate$(sid)$(fgroup)")
+        filename  = joinpath(save_dir, "$(String(trace_sym)).jld2")
+        if !isfile(filename)
+            @info "File not found for StripeID=$sid fluobin_group=$fgroup, skipping"
+            continue
+        end
+        data_jld = JLD2.load(filename)
+        dl_results[(sid, fgroup)] = (
+            trace = data_jld[String(trace_sym)],
+            rate  = data_jld[String(rate_sym)],
+        )
+    end
 end
-npzwrite("eve_analysis_rates/svm/offts3_by_ij.npz", data)
+
+# Per-(sid, fgroup) on/off times
+onts  = Dict{Tuple{Int,Int}, Vector{Float64}}()
+offts = Dict{Tuple{Int,Int}, Vector{Float64}}()
+for sid in 1:7, fgroup in 1:10
+    haskey(dl_results, (sid, fgroup)) || continue
+    tr = dl_results[(sid, fgroup)].trace
+    onts[(sid, fgroup)]  = on_off_time(tr, 0.33, 1.0)
+    offts[(sid, fgroup)] = on_off_time(tr, 0.33, 0.0)
+end
+
+# Merge fg 1–3, 4–6, 7–10 into 3 bins for saving (7×3 = 21 entries)
+fgroup_bins = [1:3, 4:6, 7:10]
+data = Dict{String, Vector{Float64}}()
+for sid in 1:7, (j, bin) in enumerate(fgroup_bins)
+    merged = Float64[]
+    for fg in bin
+        haskey(offts, (sid, fg)) && append!(merged, offts[(sid, fg)])
+    end
+    isempty(merged) && continue
+    data["$(sid)_$(j)"] = merged
+end
+npzwrite("eve_analysis/svm/offts3_by_ij.npz", data)
+===#
