@@ -7,7 +7,7 @@ end
 
 
 function signal_function(x; τ=τ, L1=L1, L=L, I=I)
-    return min(x/τ*L/L1*I,I) # x/tau, the normalized position of RNAP on the gene (in terms of time as unit)
+    return min((1-x/τ)*L/L1*I,I) # 1-x/tau, the normalized position of RNAP on the gene (in terms of time as unit)
 end
 
 # min_max normalization, same as value/maximum normalizaion if the minimum is 0.
