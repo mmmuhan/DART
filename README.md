@@ -30,7 +30,7 @@ Pkg.instantiate()
 
 Most synthetic datasets used in this work are too large to host on GitHub.  
 They are archived separately on Zenodo:  
-[Synthetic data](https://doi.org/10.5281/zenodo.17100879)
+[Synthetic data](https://doi.org/10.5281/zenodo.21470892)
 
 The GitHub repository contains **all analysis code** (see `synthetic_analysis/`) to generate and test on these datasets.  
 
