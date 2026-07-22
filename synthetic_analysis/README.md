@@ -28,7 +28,7 @@ Filenames encode burstiness level, noise condition, and method. The table below 
 
 ## Data
 
-All generated data is stored in `synthetic_data/` (also available on [Zenodo](https://doi.org/10.5281/zenodo.17100879)).
+All generated data is stored in `synthetic_data/` (also available on [Zenodo](https://doi.org/10.5281/zenodo.21470892)).
 
 ### `base_compare/`
 
