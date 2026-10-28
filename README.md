@@ -1,4 +1,5 @@
 # DART
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23727992.svg)](https://doi.org/10.5281/zenodo.23727992)
 
 This repository contains the code for the paper: DART: Deep learning for the Analysis and Reconstruction of Transcriptional dynamics from live-cell imaging data, Muhan Ma, Ramon Grima (2025)
 
